@@ -152,10 +152,14 @@ const ProductListScreen = ({ history, match }) => {
     html2canvas(input)
       .then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, 'JPEG', 0, 0);
-        // pdf.output('dataurlnewwindow');
-        pdf.save("download.pdf");
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+        });
+        const imgProps= pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('download.pdf');
       })
       ;
   }
@@ -180,7 +184,7 @@ const ProductListScreen = ({ history, match }) => {
       ) : error ? (
         <Message variant='danger'>{error}</Message>
       ) : (
-        <>
+        <div >
           {/* This is the previous code for previous table which doesn't support search, filter, pagination, sort and export */}
           {/* <Table striped bordered hover responsive className='table-sm'>
             <thead>
@@ -230,7 +234,7 @@ const ProductListScreen = ({ history, match }) => {
                 <div>
                   <SearchBar {...props.searchProps} />
 
-                  < BootstrapTable striped id="divToPrint" pagination={pagination}
+                  < BootstrapTable striped  id="divToPrint" pagination={pagination}
                     {...props.baseProps}
                   />
                   <ExportCSVButton className="btn btn-success" {...props.csvProps}>
@@ -244,7 +248,7 @@ const ProductListScreen = ({ history, match }) => {
           </ToolkitProvider>
           {/* <Paginate pages={pages} page={page} isAdmin={true} /> */}
           {/* <BootstrapTable keyField="id" columns={columns} data={products}/> */}
-        </>
+        </div>
       )}
 
     </>
